@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -8,10 +8,12 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import random
 import asyncio
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from collections import defaultdict
+import time
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -29,6 +31,26 @@ api_router = APIRouter(prefix="/api")
 
 # LLM API Key
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
+
+# Rate limiting per IP (in-memory, simple implementation)
+rate_limit_storage = defaultdict(list)
+RATE_LIMIT_REQUESTS = 10  # 10 requests per minute per IP
+RATE_LIMIT_WINDOW = 60  # 60 seconds
+
+def check_rate_limit(ip_address: str) -> bool:
+    """Check if IP has exceeded rate limit"""
+    now = time.time()
+    # Clean old requests
+    rate_limit_storage[ip_address] = [
+        req_time for req_time in rate_limit_storage[ip_address]
+        if now - req_time < RATE_LIMIT_WINDOW
+    ]
+    
+    if len(rate_limit_storage[ip_address]) >= RATE_LIMIT_REQUESTS:
+        return False
+    
+    rate_limit_storage[ip_address].append(now)
+    return True
 
 # Define Models
 class GenerateHooksRequest(BaseModel):
@@ -62,7 +84,7 @@ class HookOfTheDayResponse(BaseModel):
 def detect_language(text: str) -> str:
     """Simple language detection for English vs Hinglish"""
     # Check for common Hindi words in Latin script
-    hinglish_keywords = ['kya', 'hai', 'tum', 'aap', 'matlab', 'karo', 'mat', 'galti', 'sab', 'agar', 'ye', 'wo']
+    hinglish_keywords = ['kya', 'hai', 'tum', 'aap', 'matlab', 'karo', 'mat', 'galti', 'sab', 'agar', 'ye', 'wo', 'mein', 'ka', 'ki']
     text_lower = text.lower()
     for keyword in hinglish_keywords:
         if keyword in text_lower:
@@ -177,8 +199,18 @@ VIDEO IDEAS:
 
 # Routes
 @api_router.post("/generate-hooks", response_model=GenerateHooksResponse)
-async def generate_hooks(request: GenerateHooksRequest):
+async def generate_hooks(request: GenerateHooksRequest, req: Request):
     """Generate viral hooks, captions, and video ideas"""
+    
+    # Get client IP for rate limiting
+    client_ip = req.client.host
+    
+    # Check rate limit
+    if not check_rate_limit(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please wait a moment before trying again."
+        )
     
     # Validate input
     if not request.topic or len(request.topic.strip()) == 0:
@@ -221,7 +253,7 @@ async def get_hook_of_the_day():
 
 @api_router.get("/")
 async def root():
-    return {"message": "HookForge API"}
+    return {"message": "HookForge API", "status": "online"}
 
 # Include the router in the main app
 app.include_router(api_router)

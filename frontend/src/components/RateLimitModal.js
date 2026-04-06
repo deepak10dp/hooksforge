@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, X } from 'lucide-react';
+import { AlertCircle, X, Clock } from 'lucide-react';
 
 const RateLimitModal = ({ isOpen, onClose }) => {
+  const [timeUntilReset, setTimeUntilReset] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setHours(24, 0, 0, 0);
+      
+      const diff = tomorrow - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setTimeUntilReset(`${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -42,8 +66,22 @@ const RateLimitModal = ({ isOpen, onClose }) => {
             </h2>
 
             <p className="text-slate-600 font-semibold" data-testid="modal-message">
-              You've used all 5 generations for today. Come back tomorrow for more viral hooks!
+              You've used all 5 generations for today. Your limit will reset at midnight.
             </p>
+
+            <div className="w-full bg-slate-100 rounded-2xl border-2 border-slate-200 p-4" data-testid="countdown-timer">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Clock className="w-5 h-5 text-slate-700" strokeWidth={3} />
+                <span className="text-sm font-bold text-slate-700">Resets in:</span>
+              </div>
+              <p className="text-2xl font-black text-slate-900">{timeUntilReset}</p>
+            </div>
+
+            <div className="w-full space-y-2">
+              <p className="text-xs text-slate-500 font-semibold">
+                💡 Tip: Check out your saved hooks in the meantime!
+              </p>
+            </div>
 
             <button
               onClick={onClose}
