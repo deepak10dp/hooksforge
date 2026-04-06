@@ -304,7 +304,14 @@ const Home = () => {
                   type="text"
                   placeholder="Enter your topic..."
                   value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
+                  onChange={(e) => {
+                    setTopic(e.target.value);
+                    // Clear results when input is erased
+                    if (e.target.value.trim() === '') {
+                      setResults(null);
+                      setError('');
+                    }
+                  }}
                   className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-lg font-bold focus:border-slate-400 focus:ring-0 outline-none placeholder:text-slate-400 transition-colors shadow-sm text-slate-800"
                   data-testid="topic-input"
                   onKeyPress={(e) => e.key === 'Enter' && handleGenerate()}
