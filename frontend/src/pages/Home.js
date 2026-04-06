@@ -302,7 +302,7 @@ const Home = () => {
               <div>
                 <input
                   type="text"
-                  placeholder="Enter your topic..."
+                  placeholder="idea likho ... scroll stopping hook pao"
                   value={topic}
                   onChange={(e) => {
                     setTopic(e.target.value);
