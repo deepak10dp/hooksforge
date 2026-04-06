@@ -292,7 +292,7 @@ async def get_hook_of_the_day():
 
 @api_router.get("/")
 async def root():
-    return {"message": "HookForge API", "status": "online"}
+    return {"message": "Hooksforge API", "status": "online"}
 
 # Include the router in the main app
 app.include_router(api_router)

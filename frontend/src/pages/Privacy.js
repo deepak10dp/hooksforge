@@ -24,7 +24,7 @@ const Privacy = () => {
             <section>
               <h2 className="text-2xl font-bold text-slate-900 mb-3">Data Collection</h2>
               <p className="font-semibold">
-                HookForge does not collect, store, or transmit any personal data to external servers.
+                Hooksforge does not collect, store, or transmit any personal data to external servers.
               </p>
             </section>
 
