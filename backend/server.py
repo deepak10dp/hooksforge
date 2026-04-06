@@ -8,10 +8,10 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 import random
 import asyncio
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import AsyncOpenAI
 from collections import defaultdict
 import time
 
@@ -31,6 +31,12 @@ api_router = APIRouter(prefix="/api")
 
 # LLM API Key
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
+
+# Initialize OpenAI client with Emergent key
+openai_client = AsyncOpenAI(
+    api_key=EMERGENT_LLM_KEY,
+    base_url="https://api.openai.com/v1"
+)
 
 # Rate limiting per IP (in-memory, simple implementation)
 rate_limit_storage = defaultdict(list)
@@ -134,26 +140,25 @@ VIDEO IDEAS:
 """
 
     try:
-        # Initialize LLM Chat
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"hookforge_{uuid.uuid4().hex[:8]}",
-            system_message=system_message
+        # Call OpenAI API
+        response = await openai_client.chat.completions.create(
+            model="gpt-5.2",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.9,
+            max_tokens=1500
         )
-        chat.with_model("openai", "gpt-5.2")
         
-        # Create message
-        user_message = UserMessage(text=user_prompt)
-        
-        # Send message and get response
-        response = await chat.send_message(user_message)
+        result_text = response.choices[0].message.content
         
         # Parse response
         hooks = []
         captions = []
         video_ideas = []
         
-        lines = response.strip().split('\n')
+        lines = result_text.strip().split('\n')
         current_section = None
         
         for line in lines:
