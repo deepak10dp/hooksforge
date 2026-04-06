@@ -35,7 +35,7 @@ EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
 # Initialize OpenAI client with Emergent key
 openai_client = AsyncOpenAI(
     api_key=EMERGENT_LLM_KEY,
-    base_url="https://api.openai.com/v1"
+    base_url="https://api.emergentagi.com/v1"
 )
 
 # Rate limiting per IP (in-memory, simple implementation)

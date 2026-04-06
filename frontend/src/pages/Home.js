@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { Sparkles, TrendingUp, Calendar, History } from 'lucide-react';
@@ -38,6 +38,7 @@ const Home = () => {
 
   const backgroundColor = CATEGORY_COLORS[category];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Online/Offline detection
     const handleOnline = () => {
@@ -87,14 +88,15 @@ const Home = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [category, isOffline]);
 
   // Load trending hooks when category changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!isOffline) {
       loadTrendingHooks(category);
     }
-  }, [category]);
+  }, [category, isOffline]);
 
   const loadTrendingHooks = async (selectedCategory) => {
     try {
