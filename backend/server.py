@@ -227,17 +227,56 @@ async def generate_hooks(request: GenerateHooksRequest, req: Request):
     
     return result
 
-@api_router.get("/trending-hooks", response_model=List[TrendingHook])
-async def get_trending_hooks():
-    """Get trending hooks"""
-    trending = [
-        TrendingHook(text="Nobody tells you this about {topic}", category="General", viral_score=95),
-        TrendingHook(text="I wasted years doing this wrong", category="General", viral_score=92),
-        TrendingHook(text="This changed everything for me", category="General", viral_score=88),
-        TrendingHook(text="Stop doing this immediately", category="General", viral_score=90),
-        TrendingHook(text="The truth about {topic} nobody shares", category="General", viral_score=87),
-    ]
-    return trending
+@api_router.get("/trending-hooks/{category}", response_model=List[TrendingHook])
+async def get_trending_hooks(category: str = "General"):
+    """Get trending hooks for specific category"""
+    
+    trending_by_category = {
+        "General": [
+            TrendingHook(text="Nobody tells you this about {topic}", category="General", viral_score=95),
+            TrendingHook(text="I wasted years doing this wrong", category="General", viral_score=92),
+            TrendingHook(text="This changed everything for me", category="General", viral_score=88),
+            TrendingHook(text="Stop doing this immediately", category="General", viral_score=90),
+            TrendingHook(text="The truth nobody wants you to know", category="General", viral_score=87),
+        ],
+        "Money": [
+            TrendingHook(text="I made money while sleeping—here's how", category="Money", viral_score=96),
+            TrendingHook(text="This side hustle changed my bank account", category="Money", viral_score=94),
+            TrendingHook(text="Stop trading time for money", category="Money", viral_score=91),
+            TrendingHook(text="Passive income secret nobody shares", category="Money", viral_score=93),
+            TrendingHook(text="How I 10x my income in 6 months", category="Money", viral_score=89),
+        ],
+        "Gym": [
+            TrendingHook(text="This workout mistake kills your gains", category="Gym", viral_score=94),
+            TrendingHook(text="I transformed my body in 90 days", category="Gym", viral_score=92),
+            TrendingHook(text="Stop doing cardio like this", category="Gym", viral_score=88),
+            TrendingHook(text="The real secret to muscle growth", category="Gym", viral_score=90),
+            TrendingHook(text="Why your workout isn't working", category="Gym", viral_score=87),
+        ],
+        "Tech": [
+            TrendingHook(text="This AI tool replaced my entire workflow", category="Tech", viral_score=95),
+            TrendingHook(text="Stop coding like this immediately", category="Tech", viral_score=91),
+            TrendingHook(text="The tech skill nobody's teaching you", category="Tech", viral_score=89),
+            TrendingHook(text="I automated my job in 3 hours", category="Tech", viral_score=93),
+            TrendingHook(text="This coding mistake cost me months", category="Tech", viral_score=88),
+        ],
+        "Relationships": [
+            TrendingHook(text="This saved my relationship overnight", category="Relationships", viral_score=94),
+            TrendingHook(text="Stop doing this in your relationship", category="Relationships", viral_score=92),
+            TrendingHook(text="The truth about modern dating", category="Relationships", viral_score=90),
+            TrendingHook(text="Why your relationships keep failing", category="Relationships", viral_score=88),
+            TrendingHook(text="This one habit strengthens any bond", category="Relationships", viral_score=91),
+        ],
+        "Study": [
+            TrendingHook(text="I aced exams without studying 12 hours", category="Study", viral_score=93),
+            TrendingHook(text="This study technique is game-changing", category="Study", viral_score=91),
+            TrendingHook(text="Stop studying like this—it doesn't work", category="Study", viral_score=89),
+            TrendingHook(text="How I memorize anything in minutes", category="Study", viral_score=90),
+            TrendingHook(text="The study secret toppers hide from you", category="Study", viral_score=88),
+        ],
+    }
+    
+    return trending_by_category.get(category, trending_by_category["General"])
 
 @api_router.get("/hook-of-the-day", response_model=HookOfTheDayResponse)
 async def get_hook_of_the_day():

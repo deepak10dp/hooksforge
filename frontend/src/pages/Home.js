@@ -43,7 +43,7 @@ const Home = () => {
     const handleOnline = () => {
       setIsOffline(false);
       toast.success('Back online! 🎉', { duration: 2000 });
-      loadTrendingHooks();
+      loadTrendingHooks(category);
       loadHookOfTheDay();
     };
     
@@ -79,7 +79,7 @@ const Home = () => {
 
     // Load trending hooks and hook of the day
     if (!isOffline) {
-      loadTrendingHooks();
+      loadTrendingHooks(category);
       loadHookOfTheDay();
     }
 
@@ -89,9 +89,16 @@ const Home = () => {
     };
   }, []);
 
-  const loadTrendingHooks = async () => {
+  // Load trending hooks when category changes
+  useEffect(() => {
+    if (!isOffline) {
+      loadTrendingHooks(category);
+    }
+  }, [category]);
+
+  const loadTrendingHooks = async (selectedCategory) => {
     try {
-      const response = await axios.get(`${API}/trending-hooks`, { timeout: 5000 });
+      const response = await axios.get(`${API}/trending-hooks/${selectedCategory}`, { timeout: 5000 });
       setTrendingHooks(response.data);
     } catch (err) {
       console.error('Failed to load trending hooks', err);
