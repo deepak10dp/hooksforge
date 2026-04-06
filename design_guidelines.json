@@ -1,0 +1,101 @@
+{
+  "theme": "light",
+  "archetype": "6 - Vibrant Play",
+  "colors": {
+    "background_categories": {
+      "General": "#FFD60A",
+      "Study": "#34C759",
+      "Gym": "#FF7A00",
+      "Tech": "#007AFF",
+      "Money": "#AF52DE",
+      "Relationships": "#FF2D55"
+    },
+    "card_bg": "#FFFFFF",
+    "text_primary": "#1C1C1E",
+    "text_secondary": "#8E8E93",
+    "accents": {
+      "viral_score_high": "#FF3B30",
+      "viral_score_med": "#FF9500"
+    }
+  },
+  "typography": {
+    "font_family_headings": "'Nunito', sans-serif",
+    "font_family_body": "'Nunito', sans-serif",
+    "heading_sizes": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-bold",
+      "h4": "text-lg sm:text-xl font-bold"
+    }
+  },
+  "layout_spacing": {
+    "border_radius_card": "rounded-3xl",
+    "border_radius_button": "rounded-2xl",
+    "padding_card": "p-5 sm:p-6",
+    "padding_button": "px-6 py-4",
+    "gap_standard": "gap-4 sm:gap-6",
+    "button_shadow": "shadow-[0_4px_0_0_rgba(0,0,0,0.1)]",
+    "card_shadow": "shadow-[0_8px_0_0_rgb(241,245,249)]"
+  },
+  "components": {
+    "button": {
+      "base": "w-full font-bold text-lg rounded-2xl transition-all duration-150 active:translate-y-1 active:shadow-none outline-none focus-visible:ring-4 focus-visible:ring-white/50",
+      "primary": "bg-white text-slate-900 border-2 border-slate-200 shadow-[0_4px_0_0_rgb(226,232,240)]",
+      "ghost_white": "bg-white/20 text-white backdrop-blur-sm border-2 border-white/30 shadow-[0_4px_0_0_rgba(255,255,255,0.3)] hover:bg-white/30"
+    },
+    "card": {
+      "base": "bg-white rounded-3xl border-2 border-slate-100 shadow-[0_8px_0_0_rgb(226,232,240)] p-5 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_0_0_rgb(226,232,240)]"
+    },
+    "inputs": {
+      "base": "w-full bg-white border-2 border-slate-200 rounded-2xl p-4 text-lg font-bold focus:border-slate-400 focus:ring-0 outline-none placeholder:text-slate-400 transition-colors shadow-sm text-slate-800"
+    },
+    "badges": {
+      "base": "inline-flex items-center px-3 py-1 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border-2 border-slate-200"
+    }
+  },
+  "animations": {
+    "framer_motion": {
+      "list_container": {
+        "hidden": { "opacity": 0 },
+        "show": { "opacity": 1, "transition": { "staggerChildren": 0.1 } }
+      },
+      "card_item": {
+        "hidden": { "opacity": 0, "y": 30 },
+        "show": { "opacity": 1, "y": 0, "transition": { "type": "spring", "bounce": 0.5, "duration": 0.6 } }
+      },
+      "mascot_float": {
+        "animate": {
+          "y": [0, -10, 0],
+          "transition": { "duration": 3, "repeat": "Infinity", "ease": "easeInOut" }
+        }
+      }
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "style": "stroke-[3px] text-current"
+  },
+  "media": {
+    "images": [
+      {
+        "category": "app_logo_placeholder",
+        "url": "https://images.unsplash.com/photo-1772371272167-0117a6573d58?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxjdXRlJTIwM2QlMjBjYXJ0b29uJTIwY2hhcmFjdGVyfGVufDB8fHx8MTc3NTQ0NzY0MHww&ixlib=rb-4.1.0&q=85",
+        "description": "3D Cartoon Character Mascot (Fallback)"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Install `lucide-react` for icons and `framer-motion` for animations.",
+    "Add Nunito font to the project: `@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');` in index.css.",
+    "The App must be a Mobile-First layout, meaning limit max-width to 480px (e.g. `max-w-md mx-auto`) to mimic a native app feel on desktop, wrapped in a container that fills the screen.",
+    "The background color of the main wrapper MUST change dynamically based on the Category state (Yellow, Green, Orange, Blue, Purple, Pink). Add a smooth CSS transition to the background color change.",
+    "For the Mascot: DO NOT use external images. Create a React component `<BlobMascot category={category} />` using SVG. Draw a rounded organic blob shape using SVG `<path>`. Inside, draw two large white circles for eyes with black pupils, and a mouth. Animate the expression (path d attribute or mouth shape) and color of the blob based on the category (e.g., Pink blob with hearts for relationships, Blue with glasses for tech, Orange with sweatband for gym).",
+    "Buttons and Cards MUST strictly follow the 3D Neobrutalist 'Duolingo' style: they need a heavy bottom shadow (`shadow-[0_4px_0_0_rgb(...)]`), 2px border, and on `:active`, translate-y down by the shadow amount and remove the shadow to feel like a real physical press.",
+    "Inputs and Dropdowns should also be heavily rounded (`rounded-2xl`), bold text, with 2px borders.",
+    "Use framer-motion for the Hook cards entering the screen (staggered fade up).",
+    "Implement Sonner or a custom Framer Motion toast for the 'Copied ✅' notification, with a bounce effect.",
+    "Rate Limit Modal should pop up with a spring animation and have a friendly tone, even though it blocks the user.",
+    "Store history and usage limit in localStorage. Do not forget the Privacy Policy page link in the footer.",
+    "All interactive elements must have `data-testid` attributes."
+  ]
+}
