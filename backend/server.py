@@ -116,8 +116,8 @@ Generate viral social media content for topic: "{topic}"
 
 Provide:
 1. 12 viral hooks (max 12 words each)
-2. 3 short captions (social-ready)
-3. 2 short video ideas (1-2 lines each)
+2. 5 short captions (social-ready)
+3. 3 short video ideas (1-2 lines each)
 
 Format your response as:
 HOOKS:
@@ -170,27 +170,27 @@ VIDEO IDEAS:
             
             if line and line[0].isdigit() and '.' in line[:3]:
                 content = line.split('.', 1)[1].strip()
-                if current_section == 'hooks' and len(hooks) < 10:
+                if current_section == 'hooks' and len(hooks) < 12:
                     viral_score = random.randint(65, 98)
-                    views = random.choice(['10K', '50K', '100K', '500K', '1M+'])
+                    views = random.choice(['10K', '50K', '100K', '500K', '1M+', '5M+' , '10M+'])
                     hooks.append(HookItem(text=content, viral_score=viral_score, estimated_views=views))
-                elif current_section == 'captions' and len(captions) < 3:
+                elif current_section == 'captions' and len(captions) < 5:
                     captions.append(content)
-                elif current_section == 'video_ideas' and len(video_ideas) < 2:
+                elif current_section == 'video_ideas' and len(video_ideas) < 3:
                     video_ideas.append(content)
         
         # Ensure we have minimum required items
-        if len(hooks) < 10:
+        if len(hooks) < 12:
             raise ValueError("Not enough hooks generated")
-        if len(captions) < 3:
+        if len(captions) < 5:
             raise ValueError("Not enough captions generated")
-        if len(video_ideas) < 2:
+        if len(video_ideas) < 3:
             raise ValueError("Not enough video ideas generated")
         
         return GenerateHooksResponse(
             hooks=hooks[:12],
             captions=captions[:5],
-            video_ideas=video_ideas[:5]
+            video_ideas=video_ideas[:3]
         )
         
     except Exception as e:
