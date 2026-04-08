@@ -36,7 +36,7 @@ EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
 
 # Rate limiting per IP (in-memory, simple implementation)
 rate_limit_storage = defaultdict(list)
-RATE_LIMIT_REQUESTS = 10  # 10 requests per minute per IP
+RATE_LIMIT_REQUESTS = 12  # 10 requests per minute per IP
 RATE_LIMIT_WINDOW = 60  # 60 seconds
 
 def check_rate_limit(ip_address: str) -> bool:
@@ -115,7 +115,7 @@ Rules:
 Generate viral social media content for topic: "{topic}"
 
 Provide:
-1. 10 viral hooks (max 12 words each)
+1. 12 viral hooks (max 12 words each)
 2. 3 short captions (social-ready)
 3. 2 short video ideas (1-2 lines each)
 
@@ -188,9 +188,9 @@ VIDEO IDEAS:
             raise ValueError("Not enough video ideas generated")
         
         return GenerateHooksResponse(
-            hooks=hooks[:10],
-            captions=captions[:3],
-            video_ideas=video_ideas[:2]
+            hooks=hooks[:12],
+            captions=captions[:5],
+            video_ideas=video_ideas[:5]
         )
         
     except Exception as e:
