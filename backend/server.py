@@ -95,7 +95,7 @@ def detect_language(text: str) -> str:
 
 # Hook generation using AI
 async def generate_hooks_with_ai(topic: str, category: str, tone: Optional[str], language: str) -> GenerateHooksResponse:
-    """Generate hooks using GPT-4o-mini via Emergent LLM key"""
+    """Generate hooks using gemini-1.5-flash via Emergent LLM key"""
     
     # Prepare system message
     system_message = f"""
@@ -142,7 +142,7 @@ VIDEO IDEAS:
             session_id=f"hookforge_{uuid.uuid4().hex[:8]}",
             system_message=system_message
         )
-        chat.with_model("openai", "gpt-4o-mini")
+        chat.with_model("google", "gemini-1.5-flash")
         
         # Create message and get response
         user_message = UserMessage(text=user_prompt)
