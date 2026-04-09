@@ -95,7 +95,7 @@ def detect_language(text: str) -> str:
 
 # Hook generation using AI
 async def generate_hooks_with_ai(topic: str, category: str, tone: Optional[str], language: str) -> GenerateHooksResponse:
-    """Generate hooks using GPT-5.2 via Emergent LLM key"""
+    """Generate hooks using GPT-4o-mini via Emergent LLM key"""
     
     # Prepare system message
     system_message = f"""
@@ -115,9 +115,9 @@ Rules:
 Generate viral social media content for topic: "{topic}"
 
 Provide:
-1. 12 viral hooks (max 12 words each)
+1. 10 viral hooks (max 12 words each)
 2. 5 short captions (social-ready)
-3. 3 short video ideas (1-2 lines each)
+3. 2 short video ideas (1-2 lines each)
 
 Format your response as:
 HOOKS:
@@ -142,7 +142,7 @@ VIDEO IDEAS:
             session_id=f"hookforge_{uuid.uuid4().hex[:8]}",
             system_message=system_message
         )
-        chat.with_model("openai", "gpt-5.2")
+        chat.with_model("openai", "gpt-4o-mini")
         
         # Create message and get response
         user_message = UserMessage(text=user_prompt)
@@ -170,27 +170,27 @@ VIDEO IDEAS:
             
             if line and line[0].isdigit() and '.' in line[:3]:
                 content = line.split('.', 1)[1].strip()
-                if current_section == 'hooks' and len(hooks) < 12:
+                if current_section == 'hooks' and len(hooks) < 10:
                     viral_score = random.randint(65, 98)
                     views = random.choice(['10K', '50K', '100K', '500K', '1M+', '5M+' , '10M+'])
                     hooks.append(HookItem(text=content, viral_score=viral_score, estimated_views=views))
                 elif current_section == 'captions' and len(captions) < 5:
                     captions.append(content)
-                elif current_section == 'video_ideas' and len(video_ideas) < 3:
+                elif current_section == 'video_ideas' and len(video_ideas) < 2:
                     video_ideas.append(content)
         
         # Ensure we have minimum required items
-        if len(hooks) < 12:
+        if len(hooks) < 10:
             raise ValueError("Not enough hooks generated")
         if len(captions) < 5:
             raise ValueError("Not enough captions generated")
-        if len(video_ideas) < 3:
+        if len(video_ideas) < 2:
             raise ValueError("Not enough video ideas generated")
         
         return GenerateHooksResponse(
-            hooks=hooks[:12],
+            hooks=hooks[:10],
             captions=captions[:5],
-            video_ideas=video_ideas[:3]
+            video_ideas=video_ideas[:2]
         )
         
     except Exception as e:
