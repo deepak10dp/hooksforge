@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timezone
 import random
 import asyncio
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import google.generativeai as genai
 from collections import defaultdict
 import time
 
@@ -30,8 +30,7 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # LLM API Key
-EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
-
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 # LLM client will be created per request
 
 # Rate limiting per IP (in-memory, simple implementation)
@@ -95,69 +94,49 @@ def detect_language(text: str) -> str:
 
 # Hook generation using AI
 async def generate_hooks_with_ai(topic: str, category: str, tone: Optional[str], language: str) -> GenerateHooksResponse:
-    """Generate hooks using gemini-1.5-flash via Emergent LLM key"""
     
-    # Prepare system message
-    system_message = f"""
-You are a viral social media content expert. Generate highly engaging hooks, captions, and video ideas.
+    prompt = f"""
+You are a viral social media content expert.
 
 Rules:
-- Hooks must be maximum 12 words
-- Hooks must be curiosity-driven and pattern-based
-- Generate content in {language.upper()} language
+- Hooks max 12 words
+- Highly engaging
+- Language: {language}
 - Category: {category}
 - Tone: {tone if tone else 'General'}
-- For Hinglish: Use natural Hinglish (e.g., 'ye galti mat karna', 'aisa mat karo')
-- Make hooks extremely engaging and viral-worthy
-"""
 
-    user_prompt = f"""
-Generate viral social media content for topic: "{topic}"
+Topic: {topic}
 
-Provide:
-1. 10 viral hooks (max 12 words each)
-2. 5 short captions (social-ready)
-3. 2 short video ideas (1-2 lines each)
-
-Format your response as:
+Format:
 HOOKS:
-1. [hook text]
-2. [hook text]
-...
+1. ...
+2. ...
 
 CAPTIONS:
-1. [caption text]
-2. [caption text]
-3. [caption text]
+1. ...
+2. ...
 
 VIDEO IDEAS:
-1. [video idea]
-2. [video idea]
+1. ...
+2. ...
 """
 
     try:
-        # Initialize LLM Chat with Emergent key
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"hookforge_{uuid.uuid4().hex[:8]}",
-            system_message=system_message
-        )
-        chat.with_model("google", "gemini-1.5-flash")
-        
-        # Create message and get response
-        user_message = UserMessage(text=user_prompt)
-        result_text = await chat.send_message(user_message)
-        
-        # Parse response
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        result_text = response.text
+
         hooks = []
         captions = []
         video_ideas = []
-        
+
         lines = result_text.strip().split('\n')
         current_section = None
-        
+
         for line in lines:
             line = line.strip()
+
             if 'HOOKS:' in line.upper():
                 current_section = 'hooks'
                 continue
@@ -167,36 +146,34 @@ VIDEO IDEAS:
             elif 'VIDEO IDEAS:' in line.upper():
                 current_section = 'video_ideas'
                 continue
-            
-            if line and line[0].isdigit() and '.' in line[:3]:
+
+            if line and line[0].isdigit():
                 content = line.split('.', 1)[1].strip()
+
                 if current_section == 'hooks' and len(hooks) < 10:
-                    viral_score = random.randint(65, 98)
-                    views = random.choice(['10K', '50K', '100K', '500K', '1M+', '5M+' , '10M+'])
-                    hooks.append(HookItem(text=content, viral_score=viral_score, estimated_views=views))
+                    hooks.append(HookItem(
+                        text=content,
+                        viral_score=random.randint(65, 98),
+                        estimated_views=random.choice(['10K','50K','100K','500K','1M+'])
+                    ))
+
                 elif current_section == 'captions' and len(captions) < 5:
                     captions.append(content)
+
                 elif current_section == 'video_ideas' and len(video_ideas) < 2:
                     video_ideas.append(content)
-        
-        # Ensure we have minimum required items
-        if len(hooks) < 10:
-            raise ValueError("Not enough hooks generated")
-        if len(captions) < 5:
-            raise ValueError("Not enough captions generated")
-        if len(video_ideas) < 2:
-            raise ValueError("Not enough video ideas generated")
-        
-        return GenerateHooksResponse(
-            hooks=hooks[:10],
-            captions=captions[:5],
-            video_ideas=video_ideas[:2]
-        )
-        
-    except Exception as e:
-        logging.error(f"Error generating hooks with AI: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to generate hooks: {str(e)}")
 
+        if len(hooks) < 5:
+            raise Exception("Not enough hooks generated")
+
+        return GenerateHooksResponse(
+            hooks=hooks,
+            captions=captions,
+            video_ideas=video_ideas
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 # Routes
 @api_router.post("/generate-hooks", response_model=GenerateHooksResponse)
 async def generate_hooks(request: GenerateHooksRequest, req: Request):
